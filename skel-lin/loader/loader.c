@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <unistd.h>
 
 #include "exec_parser.h"
 
@@ -16,7 +17,8 @@ static so_exec_t *exec;
 static void segv_handler(int signum, siginfo_t *info, void *context)
 {
 	/* TODO - actual loader implementation */
-
+	size_t pgsize = getpagesize();
+	
 
 	
 }
