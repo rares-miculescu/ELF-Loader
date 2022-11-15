@@ -16,6 +16,9 @@ static so_exec_t *exec;
 static void segv_handler(int signum, siginfo_t *info, void *context)
 {
 	/* TODO - actual loader implementation */
+
+
+	
 }
 
 int so_init_loader(void)
