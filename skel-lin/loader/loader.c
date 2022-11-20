@@ -12,14 +12,32 @@
 
 #include "exec_parser.h"
 
+#define null NULL
+
 static so_exec_t *exec;
+
+so_seg_t* findSegment(void *addr){
+
+
+	for(int i = 0; i < (*exec).segments_no; i++){
+
+		if((char *)exec->segments[i].vaddr > (char *)addr){
+			return &(exec->segments[i - 1]);
+				
+		}
+	}
+
+	return null;
+
+}
+
 
 static void segv_handler(int signum, siginfo_t *info, void *context)
 {
 	/* TODO - actual loader implementation */
 	size_t pgsize = getpagesize();
+	so_seg_t *sgm = findSegment(info->si_addr);
 	
-
 	
 }
 
