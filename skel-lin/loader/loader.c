@@ -17,7 +17,7 @@
 
 #define null NULL
 
-int *valid;
+long *valid;
 
 static so_exec_t *exec;
 
@@ -25,11 +25,12 @@ int fd;
 
 so_seg_t* findSegment(void *addr){
 
-	// printf("segments_no: %d\n", (*exec).segments_no);
-	// printf("imi da fault pe adresa %p\n", addr);
+	// printf("(find)segments_no: %d | ", (*exec).segments_no);
+	// printf("(find)imi da fault pe adresa %p | ", addr);
+	
 	for(int i = 0; i < (*exec).segments_no; i++){
 
-		// printf("segaddr[%d] = %p\n", i, (void *)exec->segments[i].vaddr);
+		// printf("segaddr[%d] = %p | ", i, (void *)exec->segments[i].vaddr);
 
 		if((char *)exec->segments[i].vaddr <= (char *)addr
 		 && (char *)addr < ((char *)exec->segments[i].vaddr + exec->segments[i].mem_size)){
@@ -37,7 +38,7 @@ so_seg_t* findSegment(void *addr){
 				
 		}
 	}
-	printf("\n");
+	// printf("\n");
 
 	return null;
 
@@ -47,31 +48,30 @@ void validate(void *pg_addr, size_t pgsize){
 
 	if(valid == null){
 
-		// printf("imi adauga prima adresa: %p\n", (void *)pg_addr);
+		// printf("(val)imi adauga prima adresa: %p | ", (void *)pg_addr);
 		
-		valid = malloc(sizeof(int));
-		(*valid) = (int)pg_addr;
+		valid = malloc(sizeof(long));
+		(*valid) = (long)pg_addr;
 		return;
 	}
 	
-	int *prc = valid;
-	for(int i = 0; i < sizeof(valid) / sizeof(int *); i += sizeof(int)){
+	long *prc = valid;
+	for(int i = 0; i < sizeof(valid) / sizeof(long *); i += sizeof(long)){
 
-		// printf("adresa deja mapata %d\n", (*prc));
+		// printf("(val)adresa deja mapata %lx | ", (*prc));
 
-		if(*(prc + i) == (int)pg_addr){
+		if(*(prc + i) == (long)pg_addr){
 
-			// printf("am gasit segmentul deja: %p\n", (void *)pg_addr);
+			// printf("(val)am gasit segmentul deja: %p | ", (void *)pg_addr);
 			
 			exit(139);
 		}
 	}
 
-	// printf("nu e primul element si imi adauga adresa: %p\n", (void *)pg_addr);
+	// printf("(val)nu e primul element si imi adauga adresa: %p | ", (void *)pg_addr);
 
-	int *aux = realloc(valid, sizeof(valid) + sizeof(int));
-	*(aux + (sizeof(valid))) = (int)pg_addr;
-	// free(valid);
+	long *aux = realloc(valid, sizeof(valid) + sizeof(long));
+	*(aux + (sizeof(valid))) = (long)pg_addr;
 	valid = aux;
 
 
@@ -85,26 +85,27 @@ void cpy_mem(void *pg_addr, int seg_offset, so_seg_t *sgm, size_t page_size){
 	
 	memset(buffer, 0, page_size);
 	
-	// printf("filesize %u si pagesize %ld si memsize %u\n", sgm->file_size, (long)page_size, sgm->mem_size);
+	// printf("(cpm)filesize %u si pagesize %ld si memsize %u | ", sgm->file_size, (long)page_size, sgm->mem_size);
 
 	size_t size = seg_offset + page_size;
+	// printf("(cpm)pgaddr = %p | ", pg_addr);
 	if(seg_offset > sgm->file_size){
-		// printf("e dupa filesize\n");
+		// printf("(cpm)e dupa filesize | ");
 		memcpy((void *)pg_addr, buffer, page_size);
-		// free(buffer);
+		free(buffer);
 		return;
 	}
 	if(size > sgm->file_size){
-		// printf("e putin in filesize\n");
+		// printf("(cpm)e putin in filesize | ");
 		read(fd, buffer, sgm->file_size - seg_offset);
 		memcpy((void *)pg_addr, buffer, page_size);
-		// free(buffer);
+		free(buffer);
 		return;
 	}
-	// printf("e in filesize");
+	// printf("(cpm)e in filesize | ");
 	read(fd, buffer, page_size);
 	memcpy((void *)pg_addr, buffer, page_size);
-	// free(buffer);
+	free(buffer);
 
 }
 
@@ -123,27 +124,31 @@ static void segv_handler(int signum, siginfo_t *info, void *context)
 
 	}
 
-	// printf("imi da si return de: %p\n", (void *)sgm->vaddr);
+	// printf("(main)imi da si return de: %p | ", (void *)sgm->vaddr);
 	
 	size_t pgsize = getpagesize();
 	size_t seg_offset = (char *)info->si_addr - (char *)sgm->vaddr;
 	size_t pg_offset = seg_offset % pgsize;
 	seg_offset -= pg_offset;
 
-	// printf("seg_offset = %ld\n", (long)seg_offset);
+	// printf("(main)seg_offset = %ld | ", (long)seg_offset);
 
 	validate((void *)sgm->vaddr + seg_offset, pgsize);
 
 	void *pgaddr = mmap((void *)(sgm->vaddr) + seg_offset, 
 	pgsize, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_SHARED | MAP_ANONYMOUS, 0, 0);
 
-	// printf("a facut mmap la %p\n", pgaddr);
+	// printf("(main)a facut mmap la %p | ", pgaddr);
+
+	// printf("nuj\n");
 
 	cpy_mem(pgaddr, seg_offset, sgm, pgsize);
 
+	// printf("nuj");
+
 	mprotect(pgaddr, pgsize, sgm->perm);
 
-	// printf("\n\n");
+	// printf("                                              ");
 
 }
 
