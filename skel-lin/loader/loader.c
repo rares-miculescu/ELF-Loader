@@ -28,8 +28,9 @@ int fd;
 
 
 //function that finds the segment that contains the given address
-so_seg_t* findSegment(void *addr){
-	
+so_seg_t* findSegment(void *addr)
+{
+
 	for(int i = 0; i < (*exec).segments_no; i++){
 
 		if((char *)exec->segments[i].vaddr <= (char *)addr
@@ -55,12 +56,12 @@ void validate(void *pg_addr, size_t pgsize){
 	}
 	
 	long *prc = valid;
-	for(int i = 0; i < sizeof(valid) / sizeof(long *); i += sizeof(long)){
+	for(int i = 0; i < sizeof(valid) / sizeof(long *); i += sizeof(long))
+	{
 
-		if(*(prc + i) == (long)pg_addr){
-			
+		if(*(prc + i) == (long)pg_addr)
 			exit(139);
-		}
+		
 	}
 
 	long *aux = realloc(valid, sizeof(valid) + sizeof(long));
@@ -110,9 +111,6 @@ static void segv_handler(int signum, siginfo_t *info, void *context)
 	so_seg_t *sgm = findSegment(info->si_addr);
 
 	if(sgm == null){
-		// struct sigacion sa;
-		// memset(&sa, 0, sizeof(sa));
-		// sigaction(SIGSEGV, &sa, 0);
 
 		exit(139);
 
