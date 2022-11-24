@@ -31,12 +31,13 @@ int fd;
 so_seg_t* findSegment(void *addr)
 {
 
-	for(int i = 0; i < (*exec).segments_no; i++){
+	for(int i = 0; i < (*exec).segments_no; i++)
+	{
 
 		if((char *)exec->segments[i].vaddr <= (char *)addr
 		 && (char *)addr < ((char *)exec->segments[i].vaddr + exec->segments[i].mem_size)){
 			return &(exec->segments[i]);
-				
+
 		}
 	}
 
@@ -46,7 +47,8 @@ so_seg_t* findSegment(void *addr)
 
 //function that uses the array valid to verifiy if the address was already mapped or not
 //if it was mapped exits with seg fault, else it adds the address to the array
-void validate(void *pg_addr, size_t pgsize){
+void validate(void *pg_addr, size_t pgsize)
+{
 
 	if(valid == null){
 		
@@ -56,6 +58,7 @@ void validate(void *pg_addr, size_t pgsize){
 	}
 	
 	long *prc = valid;
+
 	for(int i = 0; i < sizeof(valid) / sizeof(long *); i += sizeof(long))
 	{
 
@@ -73,7 +76,8 @@ void validate(void *pg_addr, size_t pgsize){
 //copies the memory on the virtual memory
 //we have 3 cases here, where the entire page is in the filesize, when a part of 
 //the page is in the filesize and when none of the page is in the filesize
-void cpy_mem(void *pg_addr, int seg_offset, so_seg_t *sgm, size_t page_size){
+void cpy_mem(void *pg_addr, int seg_offset, so_seg_t *sgm, size_t page_size)
+{
 
 	char *buffer = malloc(page_size);
 	
@@ -110,12 +114,9 @@ static void segv_handler(int signum, siginfo_t *info, void *context)
 {
 	so_seg_t *sgm = findSegment(info->si_addr);
 
-	if(sgm == null){
-
+	if(sgm == null)
 		exit(139);
 
-	}
-	
 	size_t pgsize = getpagesize();
 	size_t seg_offset = (char *)info->si_addr - (char *)sgm->vaddr;
 	size_t pg_offset = seg_offset % pgsize;
