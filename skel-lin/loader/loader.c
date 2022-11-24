@@ -30,8 +30,7 @@ int fd;
 //function that finds the segment that contains the given address
 so_seg_t* findSegment(void *addr)
 {
-
-	for(int i = 0; i < (*exec).segments_no; i++)
+	for( int i = 0; i < (*exec).segments_no; i++ ) 
 	{
 
 		if((char *)exec->segments[i].vaddr <= (char *)addr
@@ -51,7 +50,7 @@ void validate(void *pg_addr, size_t pgsize)
 {
 
 	if(valid == null){
-		
+
 		valid = malloc(sizeof(long));
 		(*valid) = (long)pg_addr;
 		return;
@@ -68,6 +67,7 @@ void validate(void *pg_addr, size_t pgsize)
 	}
 
 	long *aux = realloc(valid, sizeof(valid) + sizeof(long));
+
 	*(aux + (sizeof(valid))) = (long)pg_addr;
 	valid = aux;
 
@@ -120,6 +120,7 @@ static void segv_handler(int signum, siginfo_t *info, void *context)
 	size_t pgsize = getpagesize();
 	size_t seg_offset = (char *)info->si_addr - (char *)sgm->vaddr;
 	size_t pg_offset = seg_offset % pgsize;
+
 	seg_offset -= pg_offset;
 
 	validate((void *)sgm->vaddr + seg_offset, pgsize);
