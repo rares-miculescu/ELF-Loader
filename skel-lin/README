@@ -1,0 +1,21 @@
+Rares Miculescu -- 324CB 
+
+The loader uses the demand paging mechanism.
+It makes a custom handler for SIGSEGV error.
+First we find the segment of the file where the address had the fault. For this we made a
+function called findSegment.
+We calculate the offset of the page to see the address of the page that we need to map.
+Then we verify if the page hasn't been already mapped, using an array where we store the
+ addresses of the mapped pages. If the page hasn't been mapped we add the address in the array.
+The next step is to map the address that we need in the memory and copy the page from the file
+in the memory. 
+For this we use the function cpy_mem. It makes a buffer the size of our page and makes it 0.
+We use lseek to move the address from where we read and write from the file descriptor. Then
+ we need to check if our page is completely in the filesize or not.
+The 3 cases are:
+- the entire page is in the filesize
+- not all of the page is in the filesize, then we read the part of the page that is in the file
+and the rest is 0
+- the page is not in the filesize, then the buffer is 0
+After dealing with these cases we write the buffer on the memory.
+The final command of our handler is to reinstate the permissions of the page.
