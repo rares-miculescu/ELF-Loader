@@ -1,4 +1,4 @@
-Rares Miculescu -- 324CB 
+Rares Miculescu 
 
 The loader uses the demand paging mechanism.
 It makes a custom handler for SIGSEGV error.
